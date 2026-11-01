@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- 板を載せる低い台：30 cm 角、高さ 10 cm（固定）。板の持ち手が台からはみ出し、グリッパーの指が床に当たらない -->
+<sdf version="1.9">
+  <model name="stand">
+    <static>true</static>
+    <link name="stand_link">
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.30 0.30 0.10</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.30 0.30 0.10</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.55 0.55 0.58 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
