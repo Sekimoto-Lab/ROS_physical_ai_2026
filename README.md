@@ -36,4 +36,4 @@ docker compose down
 
 ## 生成AIの利用について
 
-環境構成ファイル（`compose.yaml`、`docker/Dockerfile`）と、この README の「環境」の節は、生成AI（Claude）の支援を受けて作成した。ロボットのモデル・動作プログラムなど `ws/src/` 以下は作者が実装した。
+環境構成ファイル（`compose.yaml`、`docker/Dockerfile`）と、この README の「環境」の節は、生成AI（Claude）の支援を受けて作成した。ピザのモデル（`ws/src/pizza_cut_demo/models/pizza.sdf`）も生成AIで作成し、作者が内容を確認した。それ以外の `ws/src/` 以下は作者が実装した。
