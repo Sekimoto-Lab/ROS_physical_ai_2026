@@ -15,3 +15,8 @@ __pycache__/
 
 # 認証情報
 .env
+
+# 動画（YouTube に上げるので git には入れない）と、説明資料の中間ファイル
+media/
+report/report.html
+ws/pull_results.csv

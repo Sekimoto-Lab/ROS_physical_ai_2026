@@ -10,7 +10,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg = get_package_share_directory('pizza_cut_demo')
+    pkg = get_package_share_directory('pizza_demo')
     models = os.path.join(pkg, 'models')
     ur_sim = os.path.join(get_package_share_directory('ur_simulation_gz'),
                           'launch', 'ur_sim_moveit.launch.py')
@@ -24,6 +24,8 @@ def generate_launch_description():
         launch_arguments={
             'ur_type': 'ur5e',
             'description_file': os.path.join(pkg, 'urdf', 'ur5e_gripper.urdf.xacro'),
+            # 板を素早く引くとき途中で止まらないよう、経路追従の許容誤差を外した設定
+            'controllers_file': os.path.join(pkg, 'config', 'ur_controllers.yaml'),
         }.items())
 
     def spawn(name, x, y, z):

@@ -1,0 +1,6 @@
+pull_time_s,mean_speed_mps,drag_cm,pizza_x,pizza_y,pizza_z,on_stand,motion_completed
+1.0,0.45,31.11,0.5893,-0.0008,0.124,False,True
+0.6,0.75,19.83,0.3982,0.0086,0.093,False,True
+0.5,0.9,5.34,0.8469,0.0073,0.106,True,True
+0.4,1.125,9.41,0.8063,-0.0083,0.106,True,True
+0.7,0.643,8.68,0.8128,-0.005,0.106,True,True

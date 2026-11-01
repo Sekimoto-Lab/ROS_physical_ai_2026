@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>説明資料 PAI最終課題 ピザ見習い</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 16mm 16mm; }
+  body { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 10pt; line-height: 1.6; color: #111; }
+  h1 { font-size: 17pt; margin: 0 0 2pt; }
+  .sub { font-size: 10.5pt; color: #444; margin: 0 0 10pt; }
+  h2 { font-size: 12pt; border-bottom: 1.2pt solid #111; padding-bottom: 1pt; margin: 12pt 0 5pt; }
+  h3 { font-size: 10.5pt; margin: 8pt 0 2pt; }
+  p, li { margin: 2pt 0; }
+  ul, ol { padding-left: 16pt; margin: 2pt 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 4pt 0; }
+  th, td { border: 0.6pt solid #888; padding: 2pt 4pt; text-align: center; }
+  td.l { text-align: left; }
+  th { background: #eee; }
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4pt; margin: 4pt 0; }
+  figure { margin: 0; }
+  figure img { width: 100%; border: 0.5pt solid #999; }
+  figcaption { font-size: 8.5pt; text-align: center; }
+  .cap { font-size: 8.5pt; color: #333; margin-top: 0; }
+  .eq { font-family: "Times New Roman", serif; font-style: italic; }
+  .box { border: 0.6pt solid #888; padding: 4pt 6pt; font-size: 9pt; }
+  .page { break-before: page; }
+</style>
+</head>
+<body>
+
+<h1>ピザ見習い</h1>
+<p class="sub">ピザピール（板）を素早く引き抜き、ピザだけを台に残すロボットアーム ― Physical AI 2026 応用編1 最終課題</p>
+
+<h2>1. 概要</h2>
+<p>ピザ職人は、生地を載せたピザピール（木の板）を窯の奥へ差し入れ、板だけを手前へ素早く引き抜いて、生地を窯の床に置く。
+本課題では、この「引き抜き」をロボットアームで再現した。シミュレータ上の UR5e が板の持ち手をつかみ、ピザを載せたまま板を水平に保って奥へ運ぶ。
+続いて板を素早く手前へ引き、ピザだけを台の上に残す。さらに、板を引く速さを変えて成否がどう変わるかを調べた。</p>
+<div class="shots">{{SHOTS}}</div>
+<p class="cap">図1　動作の流れ（Gazebo の画面。引く時間 0.5 秒の成功例）</p>
+
+<h2>2. 目的</h2>
+<ul>
+  <li>物をつかんだまま、手先の姿勢を保って運ぶ動作（水平保持）を、ROS 2 と MoveIt 2 で作る。</li>
+  <li>「つかんで置く」ではなく、摩擦と慣性を利用して対象を置く動作（ノンプリヘンシル操作）を、物理シミュレーションで試す。</li>
+  <li>動作の速さ（パラメータ）と成否の関係を実験で確かめ、簡単な力学モデルと比べる。</li>
+</ul>
+
+<h2>3. システム構成</h2>
+<table>
+  <tr><th>項目</th><th>内容</th></tr>
+  <tr><td>環境</td><td class="l">Docker（tiryoh/ros2-desktop-vnc:jazzy）、ROS 2 Jazzy、Gazebo Sim 8（Harmonic, DART）、MoveIt 2</td></tr>
+  <tr><td>ロボット</td><td class="l">UR5e（ur_simulation_gz）＋ Robotiq 2F-85（見た目のみ）。板の把持は Gazebo の DetachableJoint で手首に固定して表す</td></tr>
+  <tr><td>物体</td><td class="l">台（90×30×10 cm）、持ち手付きの板（40×40×1.5 cm、1.0 kg）、ピザ（直径 30 cm、厚さ 1.2 cm、0.4 kg、回転の目印にプチトマト）</td></tr>
+  <tr><td>摩擦係数</td><td class="l">板の上面 0.1（打ち粉をした板を想定）、ピザ 0.9、台 1.0。DART では接する 2 物体の小さいほうが使われるので、ピザと板の間は 0.1</td></tr>
+  <tr><td>プログラム</td><td class="l"><code>pizza_demo</code> パッケージ。起動ファイル、置き直し・障害物登録の補助スクリプト、動作プログラム <code>pizza_peel</code>（引く時間を引数で指定）</td></tr>
+</table>
+
+<h3>動作の流れ（pizza_peel）</h3>
+<ol>
+  <li>作者が RViz で教えた「持ち手をつかむ姿勢」の手前・上へ移動し、グリッパーの向きに沿って持ち手まで近づく。</li>
+  <li>板を手首に固定する（つかむ）。</li>
+  <li>5 cm 持ち上げ、手先の向きを保ったまま直線で 30 cm 奥へ運び、台の上に下ろす。</li>
+  <li>板を 45 cm 手前へ、指定した時間 <span class="eq">T</span> で直線的に引く。</li>
+  <li>ピザの位置を Gazebo から読み、引きずられた距離と、ピザが台に残ったかを記録する。</li>
+</ol>
+
+<h2>4. 工夫した点</h2>
+<ul>
+  <li><b>水平保持</b>：つかむ姿勢だけを教え込み、それ以降は「手先の向きを変えずに位置だけ動かす」直線補間（MoveIt の Cartesian path）で全区間を作った。板は手首に固定されているので、手先の向きが一定なら板は必ず水平に保たれる。</li>
+  <li><b>引く速さをパラメータ化</b>：直線経路を一度作り、時間軸を伸び縮みさせて全体がちょうど <span class="eq">T</span> 秒になるようにした。同じ経路のまま、速さだけを変えて比べられる。</li>
+  <li><b>打ち粉</b>：摩擦係数 0.6 では、アームが出せる速さではピザが板にくっついて離れなかった（予備実験）。実際のピザ屋と同じく板の摩擦を下げ（0.1）、アームの性能の範囲で成功する条件を作った。</li>
+  <li><b>速い動きでも止まらない設定</b>：既定の制御器は、目標との誤差が 0.2 rad を超えると動作を止める。素早く引くと必ずこれに引っかかるので、経路追従の許容誤差を外した設定ファイルを用意した（終点に 2 秒以内に着かなければ止める）。</li>
+  <li><b>再現性</b>：板とピザを初期位置に戻し、MoveIt の障害物（台・板・ピザ）も更新する置き直しスクリプトを用意し、毎回同じ条件から実験した。</li>
+</ul>
+
+<h2>5. 実験：板を引く速さと成否</h2>
+<p>板を 45 cm 引く時間 <span class="eq">T</span> を 1.0、0.7、0.6、0.5、0.4 秒の 5 通りに変え、それぞれ 1 回ずつ試した。結果を表1と図2に示す。なお、動画の撮影時に 1.0 秒と 0.5 秒をもう一度試し、引きずられた距離はそれぞれ 30.5 cm（失敗）、5.2 cm（成功）と、表1とほぼ同じ結果になった。</p>
+<table>
+  <tr><th>引く時間 T [s]</th><th>平均速度 [m/s]</th><th>引きずられた距離 [cm]</th><th>モデル ½μgT² [cm]</th><th>成否</th><th>ピザの最終状態</th></tr>
+  {{TABLE}}
+</table>
+<p class="cap">表1　引く時間ごとの結果（1 条件 1 回）</p>
+{{CHART}}
+<p class="cap">図2　引く時間と、ピザが引きずられた距離</p>
+
+<h2>6. 考察</h2>
+<h3>ピザが残る条件</h3>
+<p>ピザは板との摩擦力 <span class="eq">μmg</span> で引っ張られ、板より遅れて加速度 <span class="eq">μg</span>（≈ 0.98 m/s²）で動く。板が逃げ切る間（時間 <span class="eq">T</span>）にピザが引きずられる距離はおよそ <span class="eq">½μgT²</span> で、
+板が 45 cm 動く間にピザが板から外れるには、引きずられる距離が十分小さい必要がある。<span class="eq">T</span> = 1.0 秒ではモデル上の距離（49 cm）が板の移動距離 45 cm を超え、実際にピザは板に載ったまま手前へ運ばれた（失敗）。
+<span class="eq">T</span> を短くすると引きずられる距離は急に小さくなり（<span class="eq">T</span> の 2 乗に比例）、0.7、0.5、0.4 秒では 10 cm 以下に収まって成功した。0.6 秒の失敗（後述）を除けば、成否の境目は 0.7〜1.0 秒の間にあると考えられる。</p>
+<h3>モデルとのずれ</h3>
+<ul>
+  <li>成功した条件では、実測の引きずられ距離はモデルより小さかった。モデルは「引き始めから板が逃げ切るまでピザが滑り続ける」とした上限の見積もりで、実際にはピザの中心が板の端を越えた時点で板から外れて台に落ちるため、滑る時間が短くなる。</li>
+  <li><span class="eq">T</span> = 0.6 秒は、前後の 0.7 秒・0.5 秒が成功しているのに失敗し、引きずられた距離も大きかった。1 回ずつの試行なので、接触の状態（ピザが板の上でわずかに横にずれる、着地の傾き）によるばらつきの可能性がある。境目付近は複数回試して成功率で比べる必要がある。</li>
+  <li><span class="eq">T</span> = 0.4 秒は 0.5 秒より引きずられた距離が大きかった。指令が速すぎるとアームが目標に追いつかず（関節速度の上限）、実際の板の動きは指令より遅れて滑らかになるため、指令の速さを上げても効果が頭打ちになると考えられる。</li>
+</ul>
+<h3>実ロボットへの示唆</h3>
+<p>成否は「速さ」だけでなく「摩擦係数」で大きく変わる（μ=0.6 では今回の速さの範囲で成功しなかった）。実際のピザ屋が打ち粉で摩擦を下げるのは理にかなっている。実機では、板の表面状態とアームの最大加速度を合わせて設計する必要がある。</p>
+
+<h2>7. 制約と今後</h2>
+<ul>
+  <li>グリッパーは見た目のみで、把持は手首への固定で表した。指の接触でつかむと、端を持った重い板が回転して傾きやすく、Gazebo では安定しなかったためである。</li>
+  <li>ピザは柔らかい生地ではなく剛体の円柱で近似した。</li>
+  <li>今後は、各条件を複数回試して成功率を求めること、摩擦係数と速さの 2 つのパラメータで成否の境界を地図にすること、板を引く前に少し傾けて重力を利用する動きを加えることを試したい。</li>
+</ul>
+
+<h2>8. 生成AIの利用</h2>
+<p class="box">環境構成（Dockerfile、compose.yaml）、ピザ・板・台のモデル、グリッパー付きアームの記述、起動ファイル、補助スクリプト、動作プログラム <code>pizza_peel</code>（作者が RViz で教えたつかむ姿勢を起点に、残りの姿勢を計算するもの）、実験の実行とこの説明資料の作成に、生成AI（Claude）の支援を受けた。課題の設定、つかむ姿勢の教示、実験条件の指定は作者が行い、内容は作者が確認した。</p>
+
+</body>
+</html>

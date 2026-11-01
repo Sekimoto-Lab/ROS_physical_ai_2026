@@ -2,7 +2,7 @@ from glob import glob
 
 from setuptools import find_packages, setup
 
-package_name = 'pizza_cut_demo'
+package_name = 'pizza_demo'
 
 setup(
     name=package_name,
@@ -14,6 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/urdf', glob('urdf/*.xacro')),
+        ('share/' + package_name + '/config', glob('config/*.yaml')),
         ('share/' + package_name + '/models', glob('models/*.sdf')),
         ('share/' + package_name + '/scripts', glob('scripts/*.sh') + glob('scripts/*.py')),
     ],
@@ -30,6 +31,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'pizza_peel = pizza_demo.pizza_peel:main',
         ],
     },
 )
