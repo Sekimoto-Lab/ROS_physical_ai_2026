@@ -1,0 +1,10 @@
+services:
+  ros2:
+    build: ./docker
+    image: pai-ros2-jazzy:local
+    container_name: pai-ros2
+    shm_size: "1gb"
+    ports:
+      - "6080:80"   # noVNC: http://localhost:6080
+    volumes:
+      - ./ws:/home/ubuntu/ros2_ws   # 自分のコードはホストの ROS/ws/src に置く

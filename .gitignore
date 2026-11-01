@@ -1,0 +1,17 @@
+# 作業メモ・ログ（提出物に含めない）
+HANDOFF*.md
+build.log
+*.log
+
+# colcon の生成物
+ws/build/
+ws/install/
+ws/log/
+
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
+
+# 認証情報
+.env
