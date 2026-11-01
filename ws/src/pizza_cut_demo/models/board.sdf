@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!-- 台：40 cm 角、厚さ 1.5 cm の木の板に、長さ 15 cm の持ち手が付いたもの（グリッパーで持って動かす） -->
+<!-- 原点は板の中心。持ち手は -x 方向（ロボット側）に伸びる -->
+<sdf version="1.9">
+  <model name="board">
+    <static>false</static>
+    <link name="board_link">
+      <inertial>
+        <!-- 板 0.9 kg ＋ 持ち手 0.1 kg。重心は持ち手側へ 2.75 cm ずれる -->
+        <pose>-0.0275 0 0 0 0 0</pose>
+        <mass>1.0</mass>
+        <!-- 直方体 2 つの慣性を重心まわりに平行軸の定理で足し合わせた値 -->
+        <inertia>
+          <ixx>0.012028</ixx>
+          <iyy>0.019014</iyy>
+          <izz>0.031001</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- 板 -->
+      <collision name="plate_collision">
+        <geometry>
+          <box>
+            <size>0.40 0.40 0.015</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.6</mu>
+              <mu2>0.6</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="plate_visual">
+        <geometry>
+          <box>
+            <size>0.40 0.40 0.015</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.55 0.40 0.25 1</ambient>
+          <diffuse>0.80 0.62 0.40 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+        </material>
+      </visual>
+
+      <!-- 持ち手：下面を板の下面にそろえる（床に置いたとき傾かないように）。幅 3 cm（グリッパーの開き 8.5 cm に収まる）、厚さ 2 cm。つかんで滑らないよう摩擦を大きめにする -->
+      <collision name="handle_collision">
+        <pose>-0.275 0 0.0025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15 0.03 0.02</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="handle_visual">
+        <pose>-0.275 0 0.0025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15 0.03 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.40 0.27 0.15 1</ambient>
+          <diffuse>0.60 0.40 0.22 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
