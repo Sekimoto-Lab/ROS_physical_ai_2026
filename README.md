@@ -4,7 +4,7 @@
 ROS 2 Jazzy・Gazebo Sim・MoveIt 2 上の UR5e で動かす。板を引く速さを変えて、成否がどう変わるかも調べた。
 
 - 動画: https://youtu.be/M2a1arvSEG8
-- 説明資料: [`report/説明資料_PAI最終課題.pdf`](report/)
+- 説明資料: [`report/説明資料_PAI最終課題.pdf`](report/)（原稿は同じ名前の `.docx`）
 
 ## 動作の流れ
 
@@ -77,13 +77,10 @@ ros2 run pizza_demo pizza_peel --pull-time 0.5
 - 撮影用のカメラ位置: `scripts/camera_view.sh`、録画: `scripts/record.sh <秒数> [出力ファイル]`
 - 制御器の設定（`config/ur_controllers.yaml`）は、素早く引く動きで途中停止しないよう、経路追従の許容誤差を外している
 
-### 説明資料の作り直し
+### 説明資料
 
-```bash
-python3 report/build_report.py
-```
-
-`report/pull_results.csv` から表とグラフを作り、Google Chrome（macOS）で PDF に印刷する。
+原稿は `report/説明資料_PAI最終課題.docx`（作者が編集したもの）で、PDF はそれを変換したもの。
+最初の版は `python3 report/build_report.py` で `report/pull_results.csv` から表とグラフを作って生成した（`report_template.html` が元の文章）。
 
 ### 終了
 
