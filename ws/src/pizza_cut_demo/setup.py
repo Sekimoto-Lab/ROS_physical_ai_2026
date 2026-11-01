@@ -15,7 +15,7 @@ setup(
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/urdf', glob('urdf/*.xacro')),
         ('share/' + package_name + '/models', glob('models/*.sdf')),
-        ('share/' + package_name + '/scripts', glob('scripts/*.sh')),
+        ('share/' + package_name + '/scripts', glob('scripts/*.sh') + glob('scripts/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

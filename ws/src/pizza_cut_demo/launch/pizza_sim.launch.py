@@ -31,9 +31,9 @@ def generate_launch_description():
                     arguments=['-file', os.path.join(models, name + '.sdf'),
                                '-name', name, '-x', str(x), '-y', str(y), '-z', str(z)])
 
-    # 台（高さ 10 cm）の上に板、板の上にピザ。板の持ち手はロボット側に台からはみ出す
+    # 台（高さ 10 cm、x=0.45〜1.35）の上に板、板の上にピザ。板の持ち手はロボット側に台からはみ出す
     spawn_objects = TimerAction(period=8.0, actions=[
-        spawn('stand', 0.60, 0.0, 0.05),
+        spawn('stand', 0.90, 0.0, 0.05),
         spawn('board', 0.60, 0.0, 0.1085),
         spawn('pizza', 0.60, 0.0, 0.125),
     ])
@@ -44,10 +44,16 @@ def generate_launch_description():
                             '-m', 'gz.msgs.Empty', '-p', ''], output='screen'),
     ])
 
+    # 台・板・ピザを MoveIt の障害物として登録する（RViz で計画した動きが板を突き抜けないように）
+    scene = TimerAction(period=15.0, actions=[
+        ExecuteProcess(cmd=['python3', os.path.join(pkg, 'scripts', 'update_scene.py')],
+                       output='screen'),
+    ])
+
     # ROS 2 から固定・解除できるようにする（std_msgs/Empty を送る）
     bridge = Node(package='ros_gz_bridge', executable='parameter_bridge', output='screen',
                   arguments=['/board/attach@std_msgs/msg/Empty]gz.msgs.Empty',
                              '/board/detach@std_msgs/msg/Empty]gz.msgs.Empty',
                              '/board/state@std_msgs/msg/String[gz.msgs.StringMsg'])
 
-    return LaunchDescription([resource_path, sim, spawn_objects, detach, bridge])
+    return LaunchDescription([resource_path, sim, spawn_objects, detach, scene, bridge])

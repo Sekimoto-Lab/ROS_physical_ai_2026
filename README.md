@@ -31,7 +31,8 @@ Gazebo と RViz（MoveIt）が開き、グリッパー付きの UR5e と、台�
 
 - 板の固定・解除: `ros2 topic pub --once /board/attach std_msgs/msg/Empty` ／ `/board/detach`
   （グリッパーは見た目のみ。つかむ動作は、板を手首に固定することで表している）
-- 板とピザを置き直す: `bash $(ros2 pkg prefix pizza_cut_demo)/share/pizza_cut_demo/scripts/reset_scene.sh`
+- 台・板・ピザは、起動時に MoveIt の障害物として登録される。板を動かしたあとは `python3 scripts/update_scene.py` で位置を更新する
+- 板とピザを置き直す（アームを退避させ、障害物も更新する）: `bash $(ros2 pkg prefix pizza_cut_demo)/share/pizza_cut_demo/scripts/reset_scene.sh`
 - 撮影用のカメラ位置: `scripts/camera_view.sh`、録画: `scripts/record.sh <秒数> [出力ファイル]`
 
 自分のパッケージは `ws/src/` に置く。コンテナ内の `~/ros2_ws` から見えるので、そこで `colcon build` する。
